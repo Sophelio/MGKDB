@@ -2,7 +2,7 @@
 
 ## multiple entries must be separated by commas
 user_input:
-  suffixes:      ## For including all, use -1
+  suffixes:      ## For including all, leave empty
   extra_files:   ## Extra files for each suffix
   shared_files:  ## Common file for each suffix
   no_prompts: True ## Skip all prompts. Useful in workflows
