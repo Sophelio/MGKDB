@@ -8,6 +8,7 @@ from mgkdb import mgk_uploader
 
 # Example command : 
 ## python template_upload -A <fname.pkl> -T test_data/test_cgyro_multi_runs/ -SIM CGYRO 
+
 if __name__=="__main__":
 
     ## Loop over a set of runs to upload 
