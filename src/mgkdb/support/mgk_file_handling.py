@@ -42,6 +42,13 @@ class Global_vars():
     '''
     def __init__(self, sim_type):
 
+        self.set_vars(sim_type)
+        #User specified files#
+        self.Docs_ex = [] 
+        self.update_docs_keys()
+        self.troubled_runs = [] # a global list to collection runs where exception happens
+
+    def set_vars(self, sim_type):
         if sim_type=="GENE":
 
             self.required_files = ['field', 'nrg', 'omega','parameters']
@@ -87,27 +94,23 @@ class Global_vars():
         
         else : 
             print("Invalid simulation type",sim_type)
-            raise SystemError
+            raise SystemError 
         
         ### Keys used for filenames 
         self.Keys = [fname.replace('.','_') for fname in self.Docs]
-        
-        #User specified files#
-        self.Docs_ex = [] 
-        # self.Keys_ex = []
-
-        self.update_docs_keys()
-        
-        self.troubled_runs = [] # a global list to collection runs where exception happens
 
     def update_docs_keys(self):
 
         self.all_file_docs = self.Docs + self.Docs_ex
+        ## Drop any duplicates 
+        self.all_file_docs = list(set(self.all_file_docs))
+
         self.all_file_keys =  [fname.replace('.','_') for fname in self.all_file_docs]
     
     def reset_docs_keys(self,sim_type):
         ## Reset values 
-        self.__init__(sim_type)
+        self.set_vars(sim_type)
+        self.update_docs_keys() ## Update extra files
         print("File names and their key names are reset to default!")
 
 def f_load_config(config_file):
