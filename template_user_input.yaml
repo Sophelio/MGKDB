@@ -18,7 +18,7 @@ metadata:
     comments: ""
     time_uploaded:      ## Added automatically
     last_updated:       ## Added automatically
-    linkedObjectID:   ## String converted to a ObjectID if exists
+    linkedObjectID:     ## String converted to a ObjectID if exists
     archiveLocation: 
     IsRestart:
       restart: False
@@ -28,7 +28,7 @@ metadata:
     Name of actual of hypothetical experiment: ""
     scenario_runid: ""
   CodeTag:
-    sim_type: ""
+    sim_type:      ## Leave empty, set automatically in main code
     IsLinear:      ## Added automatically
     quasi_linear:  ## Added automatically
     Has1DFluxes:   ## Added automatically

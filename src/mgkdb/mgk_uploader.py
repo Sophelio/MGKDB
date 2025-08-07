@@ -148,3 +148,5 @@ def main():
 if __name__=="__main__":
     main()
 
+# Example command : 
+## python mgk_uploader.py -A <fname.pkl> -T test_data/test_gene1_tracer_efit -SIM GENE -C template_user_input.yaml
