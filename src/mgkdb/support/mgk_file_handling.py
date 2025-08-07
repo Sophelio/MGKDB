@@ -1259,7 +1259,7 @@ def f_get_input_fname(out_dir, suffix, sim_type):
     return fname_dict[sim_type]
 
 def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared=None,
-                large_files=False, extra=False, verbose=True, manual_time_flag=True, global_vars=None):
+                large_files=False, verbose=True, manual_time_flag=True, global_vars=None):
     """
     Uploads simulation run data to the database, handling both linear and nonlinear runs.
 
@@ -1271,7 +1271,6 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: True.
     - global_vars: Object containing global variables for the upload process.
@@ -1399,7 +1398,7 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
 
 
 def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=None,
-                    large_files=False, extra=False, verbose=True, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
+                    large_files=False, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
     """
     Wrapper function to upload simulation runs to MongoDB, handling both linear and nonlinear runs.
 
@@ -1411,7 +1410,6 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: False.
     - global_vars: Object containing global variables for the upload process.
@@ -1441,7 +1439,7 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
             print("Deleting {out_dir} and reuploading")
             remove_from_mongo(out_dir, db, runs_coll)
             upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                        large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                        large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
         elif update == '1':
             update_mongo(db, metadata, out_dir, runs_coll, linear)
         else:
@@ -1449,4 +1447,4 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     else:
         print(f'Folder tag:\n{out_dir}\n not detected, creating new.\n')
         upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                    large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                    large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
