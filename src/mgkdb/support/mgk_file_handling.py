@@ -1398,7 +1398,7 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
 
 
 def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=None,
-                    large_files=False, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
+                    large_files=False, verbose=False, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
     """
     Wrapper function to upload simulation runs to MongoDB, handling both linear and nonlinear runs.
 
