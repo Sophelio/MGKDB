@@ -133,7 +133,7 @@ def main_upload(target, default, sim_type, extra, authenticate, verbose, large_f
             reupload_if_exists = False
             
         upload_to_mongo(database, linear, metadata, upload_folder, suffixes, run_shared,
-                        large_files, extra, verbose, manual_time_flag, global_vars, no_prompts=no_prompts, reupload_if_exists=reupload_if_exists)
+                        large_files, verbose, manual_time_flag, global_vars, no_prompts=no_prompts, reupload_if_exists=reupload_if_exists)
 
 def main():
 

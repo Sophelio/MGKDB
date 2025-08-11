@@ -2,9 +2,9 @@
 
 ## multiple entries must be separated by commas
 user_input:
-  suffixes:      ## For including all, leave empty
+  suffixes:     _0001,_0002 ## For including all, leave empty
   extra_files:   ## Extra files for each suffix
-  shared_files:  ## Common file for each suffix
+  shared_files:  fingerprints.csv ## Common file for each suffix
   no_prompts: True ## Skip all prompts. Useful in workflows
   reupload_if_exists: True ## If run exists, delete and re-upload
 

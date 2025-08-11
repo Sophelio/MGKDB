@@ -42,6 +42,13 @@ class Global_vars():
     '''
     def __init__(self, sim_type):
 
+        self.set_vars(sim_type)
+        #User specified files#
+        self.Docs_ex = [] 
+        self.update_docs_keys()
+        self.troubled_runs = [] # a global list to collection runs where exception happens
+
+    def set_vars(self, sim_type):
         if sim_type=="GENE":
 
             self.required_files = ['field', 'nrg', 'omega','parameters']
@@ -87,27 +94,23 @@ class Global_vars():
         
         else : 
             print("Invalid simulation type",sim_type)
-            raise SystemError
+            raise SystemError 
         
         ### Keys used for filenames 
         self.Keys = [fname.replace('.','_') for fname in self.Docs]
-        
-        #User specified files#
-        self.Docs_ex = [] 
-        # self.Keys_ex = []
-
-        self.update_docs_keys()
-        
-        self.troubled_runs = [] # a global list to collection runs where exception happens
 
     def update_docs_keys(self):
 
         self.all_file_docs = self.Docs + self.Docs_ex
+        ## Drop any duplicates 
+        self.all_file_docs = list(set(self.all_file_docs))
+
         self.all_file_keys =  [fname.replace('.','_') for fname in self.all_file_docs]
     
     def reset_docs_keys(self,sim_type):
         ## Reset values 
-        self.__init__(sim_type)
+        self.set_vars(sim_type)
+        self.update_docs_keys() ## Update extra files
         print("File names and their key names are reset to default!")
 
 def f_load_config(config_file):
@@ -1256,7 +1259,7 @@ def f_get_input_fname(out_dir, suffix, sim_type):
     return fname_dict[sim_type]
 
 def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared=None,
-                large_files=False, extra=False, verbose=True, manual_time_flag=True, global_vars=None):
+                large_files=False, verbose=True, manual_time_flag=True, global_vars=None):
     """
     Uploads simulation run data to the database, handling both linear and nonlinear runs.
 
@@ -1268,7 +1271,6 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: True.
     - global_vars: Object containing global variables for the upload process.
@@ -1396,7 +1398,7 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
 
 
 def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=None,
-                    large_files=False, extra=False, verbose=True, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
+                    large_files=False, verbose=False, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
     """
     Wrapper function to upload simulation runs to MongoDB, handling both linear and nonlinear runs.
 
@@ -1408,7 +1410,6 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: False.
     - global_vars: Object containing global variables for the upload process.
@@ -1438,7 +1439,7 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
             print("Deleting {out_dir} and reuploading")
             remove_from_mongo(out_dir, db, runs_coll)
             upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                        large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                        large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
         elif update == '1':
             update_mongo(db, metadata, out_dir, runs_coll, linear)
         else:
@@ -1446,4 +1447,4 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     else:
         print(f'Folder tag:\n{out_dir}\n not detected, creating new.\n')
         upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                    large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                    large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
