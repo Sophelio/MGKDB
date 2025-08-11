@@ -154,12 +154,12 @@ def f_user_input_metadata(database):
         return user_ip
 
     print("Please provide input for metadata. Press Enter to skip that entry.\n")
-    confidence = input('What is your confidence (1-10) for the run? Press ENTER to use default value -1.0\n')
+    confidence = input('What is your confidence (0-3) for the run? Press ENTER to use default value 0\n')
     if len(confidence):
         confidence = float(confidence)
     else:
-        confidence = -1.0
-        print("Using default confidence -1.\n")
+        confidence = 0
+        print("Using default confidence 0.\n")
 
     user_ip['confidence']= confidence 
 
@@ -210,7 +210,7 @@ def f_user_input_metadata(database):
 
     return user_ip
 
-def f_set_metadata(user=None,out_dir=None,suffix=None,keywords=None,confidence=-1,comments='Uploaded with default settings.',time_upload=None,\
+def f_set_metadata(user=None,out_dir=None,suffix=None,keywords=None,confidence=0,comments='Uploaded with default settings.',time_upload=None,\
                    last_update=None, linked_ID=None, expt=None, scenario_runid=None, linear=None, quasiLinear=None, has_1dflux = None, sim_type=None,\
                    git_hash=None, platform=None, ex_date=None, workflow_type=None, archive_loc=None, restart=False, restart_timestep=0, initial_run_oid=None):
 

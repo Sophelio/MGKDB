@@ -14,7 +14,7 @@ metadata:
     run_collection_name:   ## Added automatically
     run_suffix:            ## Added automatically
     keywords: ""
-    confidence: -1
+    confidence: 0       ## 0 - 3 
     comments: ""
     time_uploaded:      ## Added automatically
     last_updated:       ## Added automatically
