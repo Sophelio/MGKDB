@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MGKDB"
-version = "0.1.0"
+version = "1.0.0"
 description = "Tools to acess MongoDB for nuclear fusion simulations"
 authors = [
 {name = "Craig Michoski", email = "michoski@gmail.com"},
@@ -21,7 +21,7 @@ classifiers = [
 dependencies = [
     'numpy>=1.24.3', 
     'h5py', 'pymongo',
-'pyrokinetics @ git+ssh://git@github.com/pyro-kinetics/pyrokinetics.git'
+    'pyrokinetics>=0.8.0', 
 ]
 
 [project.urls]
