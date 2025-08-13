@@ -1,5 +1,17 @@
 ### Template for metadata
 
+# Confidence Metadata Guidelines:
+#   Confidence | Description
+#   -----------|----------------------------------------------------------------
+#   3          | Simulation explicitly checked for convergence on at least one variable, add comments with details on which variable
+#   2          | Simulation derived or restarted from more rigorously checked simulation in database
+#   1          | Simulation checked visually for sufficiency, e.g.:
+#              |   • Fluxes appear to saturate near end of simulation
+#              |   • Perturbed structures not piling up at edge of simulated domains
+#              |   • Flux contributions not dominating from wavenumbers at edge of simulated range
+#   0          | Simulation output was generated
+
+
 ## multiple entries must be separated by commas
 user_input:
   suffixes:     _0001,_0002 ## For including all, leave empty
@@ -14,7 +26,7 @@ metadata:
     run_collection_name:   ## Added automatically
     run_suffix:            ## Added automatically
     keywords: ""
-    confidence: 0       ## 0 - 3 
+    confidence: 0       ## 0 - 3 : use guidelines given above
     comments: ""
     time_uploaded:      ## Added automatically
     last_updated:       ## Added automatically

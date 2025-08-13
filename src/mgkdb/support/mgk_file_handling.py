@@ -154,12 +154,26 @@ def f_user_input_metadata(database):
         return user_ip
 
     print("Please provide input for metadata. Press Enter to skip that entry.\n")
-    confidence = input('What is your confidence (0-3) for the run? Press ENTER to use default value 0\n')
-    if len(confidence):
-        confidence = float(confidence)
-    else:
+
+    guidelines = """Confidence Guidelines:
+    Confidence | Description
+    -----------|----------------------------------------------------------------
+    3          | Simulation explicitly checked for convergence on at least one variable, add comments with details on which variable
+    2          | Simulation derived or restarted from more rigorously checked simulation in database
+    1          | Simulation checked visually for sufficiency, e.g.:
+               |   • Fluxes appear to saturate near end of simulation
+               |   • Perturbed structures not piling up at edge of simulated domains
+               |   • Flux contributions not dominating from wavenumbers at edge of simulated range
+    0          | Simulation output was generated
+    """
+
+    # Prompt the user for confidence level, displaying the guidelines
+    confidence = input(f"{guidelines}\nWhat is your confidence (0-3) for the run? Press ENTER to use default value 0\n") or "0"
+
+    if int(confidence) not in range(4):
+        print("Invalid input confidence value. Must be between 0 and 3. Using default confidence value of 0.")
+        print(f"Confidence level set to: {confidence}")
         confidence = 0
-        print("Using default confidence 0.\n")
 
     user_ip['confidence']= confidence 
 
