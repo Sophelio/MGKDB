@@ -26,7 +26,7 @@ metadata:
     run_collection_name:   ## Added automatically
     run_suffix:            ## Added automatically
     keywords: ""
-    confidence: 0       ## 0 - 3 : use guidelines given above
+    confidence: 3       ## 0 - 3 : use guidelines given above. Default is 0
     comments: ""
     time_uploaded:      ## Added automatically
     last_updated:       ## Added automatically
