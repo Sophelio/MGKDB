@@ -5,6 +5,7 @@ scratchpad.py
 MGKDB.egg-info
 build
 *.json
+*.pkl
 
 exploration_nbks/
 pyro_tests/
