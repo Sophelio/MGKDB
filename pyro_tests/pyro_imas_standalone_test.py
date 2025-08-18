@@ -234,16 +234,16 @@ if __name__=="__main__":
 
     # data_dir = "test_data/test_gene1_tracer_efit/"
     # data_dir = "test_data/test_gene2_miller_general/"
-    data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene1_tracer_efit/'
+    # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene1_tracer_efit/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene2_miller_general/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene5_non_st_single_prec/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene6_non_st_double_prec/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene7_non_st_double_prec/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/GENE_fingerprints_march_2025/pscans_hask/scanfiles0002/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/GENE_fingerprints_march_2025/test/'
-    suffix='_0001'
-    fname = data_dir+'parameters{0}'.format(suffix)
-    gkcode="GENE"
+    # suffix='_0001'
+    # fname = data_dir+'parameters{0}'.format(suffix)
+    # gkcode="GENE"
     
     # data_dir='/Users/venkitesh_work/Downloads/downloaded_select_gene_NERSC/tracer_5f34a52cbafb0f9d07b05731/'
     # suffix = '_0002'
@@ -269,10 +269,11 @@ if __name__=="__main__":
     # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear2/run1/"
     # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear3_no_apar_saved/run1/"
     # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear6_runs_multi_ebelli/d_lti00_ge00/"
-    # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear7_oldversion_nov26_2024/run1/"
+    data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear7_oldversion_nov26_2024/run1/"
     # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/CGYRO_nonlinear8_aaron_r_0.35_it_x/"
-    # fname = data_dir+'input.cgyro'
-    # gkcode="CGYRO"
+    # data_dir = "/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/smarts_workflow_test/cygro_it_15/rho0.35_it_x/"
+    fname = data_dir+'input.cgyro'
+    gkcode="CGYRO"
 
     # data_dir = "test_data/TGLF/TGLF_linear/"
     # data_dir = "test_data/TGLF/TGLF_transport/"
