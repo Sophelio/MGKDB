@@ -1272,7 +1272,7 @@ def f_get_input_fname(out_dir, suffix, sim_type):
 
     return fname_dict[sim_type]
 
-def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared=None,
+def upload_runs(db, metadata, out_dir, is_linear=True, runs_coll = None, suffixes=None, run_shared=None,
                 large_files=False, verbose=True, manual_time_flag=True, global_vars=None):
     """
     Uploads simulation run data to the database, handling both linear and nonlinear runs.
@@ -1282,6 +1282,7 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
     - metadata: Dictionary containing metadata for the run.
     - out_dir: Output directory containing simulation files.
     - is_linear: Boolean indicating if the run is linear (True) or nonlinear (False). Default: True.
+    - runs_coll: Name of collection in Database (Either db.LinearRuns or db.NonlinRuns)
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
@@ -1293,9 +1294,6 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
     None
     """
     sim_type = metadata['CodeTag']['sim_type']
-
-    # Connect to the appropriate collection
-    runs_coll = db.LinearRuns if is_linear else db.NonlinRuns
 
     # Update files dictionary
     if suffixes is None:
@@ -1432,8 +1430,12 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     Returns:
     None
     """
-    # Connect to the appropriate collection based on linear flag
-    runs_coll = db.LinearRuns if linear else db.NonlinRuns
+
+    # Connect to the appropriate collection
+    if metadata['CodeTag']['sim_type']=='TGLF': 
+        runs_coll = db.LinearRuns
+    else:
+        runs_coll = db.LinearRuns if linear else db.NonlinRuns
 
     # Determine run type for printing
     run_type = 'linear' if linear else 'nonlinear'
@@ -1452,7 +1454,7 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
             # Delete and reupload
             print("Deleting {out_dir} and reuploading")
             remove_from_mongo(out_dir, db, runs_coll)
-            upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
+            upload_runs(db, metadata, out_dir, is_linear=linear, runs_coll=runs_coll, suffixes=suffixes, run_shared=run_shared,
                         large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
         elif update == '1':
             update_mongo(db, metadata, out_dir, runs_coll, linear)
@@ -1460,5 +1462,5 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
             print(f'Run collection \'{out_dir}\' skipped.')
     else:
         print(f'Folder tag:\n{out_dir}\n not detected, creating new.\n')
-        upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
+        upload_runs(db, metadata, out_dir, is_linear=linear, runs_coll=runs_coll, suffixes=suffixes, run_shared=run_shared,
                     large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
