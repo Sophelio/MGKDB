@@ -942,7 +942,7 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
             pickle.dump(diag_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
                 
         record['_id'] = str(record['_id'])
-        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['run_suffix']+'.json'), 'w') as f:
+        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['DBtag']['run_suffix']+'.json'), 'w') as f:
             json.dump(record, f)
            
     print ("Successfully downloaded to the directory %s " % path)
