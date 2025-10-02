@@ -792,7 +792,7 @@ def not_uploaded_list(out_dir, runs_coll, write_to = None):
     '''
     not_uploaded = []
     for dirpath, dirnames, files in os.walk(out_dir):
-        if str(dirpath).find('in_par') == -1 and str(files).find('parameters') != -1:
+        if 'in_par' not in str(dirpath) and 'parameters' in str(files):
             if not isUploaded(dirpath, runs_coll):
                 not_uploaded.append(dirpath)
     
@@ -863,7 +863,7 @@ def download_file_by_path(db, filepath, destination, revision=-1, session=None):
     count = 0
     for record in records:
         _id = record['_id']
-        filename = record['filepath'].split('/')[-1]
+        filename = os.path.basename(record['filepath'])
         with open(os.path.join(destination, filename+'_mgk{}'.format(count) ),'wb+') as f:
             fs.download_to_stream(_id, f)
             count +=1
@@ -894,7 +894,7 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
     dir_name: as appear in db.Metadata['run_collection_name']
     destination: destination to place files
     '''
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
     if not os.path.exists(path):    
         try:
             #os.mkdir(path)
@@ -984,11 +984,11 @@ def download_runs_by_id(db, runs_coll, _id, destination):
         print("Entry not found in database, please double check the id")
         raise SystemExit
         
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
 
     if not os.path.exists(path):
         try:
-#            path = os.path.join(destination, dir_name.split('/')[-1])
+#            path = os.path.join(destination, os.path.basename(dir_name))
             #os.mkdir(path)
             Path(path).mkdir(parents=True)
         except OSError:
@@ -1062,7 +1062,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                 print('deleted!')
 
             with open(file, 'rb') as f:
-                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
             
             updated.append([field, _id])
         
@@ -1125,7 +1125,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                     print('deleted!')
                 
                 with open(file, 'rb') as f:
-                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
 
                 runs_coll.update_one({ "Metadata.DBtag.run_collection_name": out_dir, "Metadata.DBtag.run_suffix": suffix }, 
                                  { "$set": {'Files.'+ doc: _id, "Metadata.DBtag.last_updated": strftime("%y%m%d-%H%M%S")} }
