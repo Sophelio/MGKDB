@@ -2,5 +2,5 @@ numpy==1.24.3
 matplotlib==3.7.4
 scipy==1.10.1
 h5py==3.9.0
-pip install pymongo==3.9.0
+pymongo>=4.0.0
 bson

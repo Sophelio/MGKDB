@@ -9,3 +9,5 @@ build
 exploration_nbks/
 pyro_tests/
 dist/
+db_credentials.pkl
+DATA/
