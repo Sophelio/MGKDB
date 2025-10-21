@@ -792,7 +792,7 @@ def not_uploaded_list(out_dir, runs_coll, write_to = None):
     '''
     not_uploaded = []
     for dirpath, dirnames, files in os.walk(out_dir):
-        if str(dirpath).find('in_par') == -1 and str(files).find('parameters') != -1:
+        if 'in_par' not in str(dirpath) and 'parameters' in str(files):
             if not isUploaded(dirpath, runs_coll):
                 not_uploaded.append(dirpath)
     
@@ -863,7 +863,7 @@ def download_file_by_path(db, filepath, destination, revision=-1, session=None):
     count = 0
     for record in records:
         _id = record['_id']
-        filename = record['filepath'].split('/')[-1]
+        filename = os.path.basename(record['filepath'])
         with open(os.path.join(destination, filename+'_mgk{}'.format(count) ),'wb+') as f:
             fs.download_to_stream(_id, f)
             count +=1
@@ -894,7 +894,7 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
     dir_name: as appear in db.Metadata['run_collection_name']
     destination: destination to place files
     '''
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
     if not os.path.exists(path):    
         try:
             #os.mkdir(path)
@@ -904,23 +904,45 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
     #else:
     fs = gridfs.GridFSBucket(db)
     inDb = runs_coll.find({ "Metadata.DBtag.run_collection_name": dir_name })
+    
+    # Convert cursor to list to check if any records exist
+    inDb_list = list(inDb)
+    if not inDb_list:
+        print(f"No records found in database for directory: {dir_name}")
+        print("Please check:")
+        print("1. The directory name is correct and exists in the database")
+        print("2. You are connected to the correct database")
+        print("3. The collection name is correct (linear vs nonlinear)")
+        return
 
-    if 'generr' in inDb[0]['Files'].keys(): ## Fix for when 'generr' doesn't exist
-        if inDb[0]['Files']['geneerr'] != 'None':    
+    if 'generr' in inDb_list[0]['Files'].keys(): ## Fix for when 'generr' doesn't exist
+        if inDb_list[0]['Files']['geneerr'] != 'None' and inDb_list[0]['Files']['geneerr'] is not None:    
             with open(os.path.join(path, 'geneerr.log'),'wb+') as f:
-                fs.download_to_stream(inDb[0]['Files']['geneerr'], f, session=None)
+                fs.download_to_stream(inDb_list[0]['Files']['geneerr'], f, session=None)
 
-    for record in inDb:
+    for record in inDb_list:
         '''
         Download 'files'
         '''
         for key, val in record['Files'].items():
-            if val != 'None' and key not in ['geneerr']:
-                filename = db.fs.files.find_one(val)['filename']
-                with open(os.path.join(path, filename),'wb+') as f:
-#                    fs.download_to_stream_by_name(filename, f, revision=-1, session=None)
-                    fs.download_to_stream(val, f, session=None)
-                record['Files'][key] = str(val)
+            if val != 'None' and val is not None and key not in ['geneerr']:
+                try:
+                    file_record = db.fs.files.find_one(val)
+                    if file_record is not None:
+                        filename = file_record['filename']
+                        with open(os.path.join(path, filename),'wb+') as f:
+                            fs.download_to_stream(val, f, session=None)
+                        record['Files'][key] = str(val)
+                    else:
+                        print(f"Warning: File with ObjectId {val} not found in GridFS for key {key}")
+                        record['Files'][key] = 'None'
+                except Exception as e:
+                    print(f"Error downloading file for key {key} with ObjectId {val}: {e}")
+                    record['Files'][key] = 'None'
+            else:
+                print(f"Skipping file {key} (value: {val})")
+                record['Files'][key] = str(val) if val is not None else 'None'
+                
         if 'generr' in record['Files'].keys():  ## Fix for when 'generr' doesn't exist 
             record['Files']['geneerr'] = str(record['Files']['geneerr'])
         
@@ -931,18 +953,19 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
         fsf=gridfs.GridFS(db)
         for key, val in record['Diagnostics'].items():
             if isinstance(val, ObjectId):
-#                data = _loadNPArrays(db, val)
-#                data = _binary2npArray(fsf.get(val).read()) # no need to store data
-                record['Diagnostics'][key] = str(val)
-#                data = _binary2npArray(fsf.get(val).read()) 
-#                np.save( os.path.join(path,str(record['_id'])+'-'+key), data)
-                diag_dict[key] = _binary2npArray(fsf.get(val).read())
+                try:
+                    record['Diagnostics'][key] = str(val)
+                    diag_dict[key] = _binary2npArray(fsf.get(val).read())
+                except Exception as e:
+                    print(f"Error loading diagnostic data for key {key}: {e}")
+                    record['Diagnostics'][key] = 'None'
             
-        with open(os.path.join(path,str(record['_id'])+'-'+'diagnostics.pkl'), 'wb') as handle:
-            pickle.dump(diag_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        if diag_dict:  # Only create file if there's data
+            with open(os.path.join(path,str(record['_id'])+'-'+'diagnostics.pkl'), 'wb') as handle:
+                pickle.dump(diag_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
                 
         record['_id'] = str(record['_id'])
-        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['run_suffix']+'.json'), 'w') as f:
+        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['DBtag']['run_suffix']+'.json'), 'w') as f:
             json.dump(record, f)
            
     print ("Successfully downloaded to the directory %s " % path)
@@ -961,11 +984,11 @@ def download_runs_by_id(db, runs_coll, _id, destination):
         print("Entry not found in database, please double check the id")
         raise SystemExit
         
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
 
     if not os.path.exists(path):
         try:
-#            path = os.path.join(destination, dir_name.split('/')[-1])
+#            path = os.path.join(destination, os.path.basename(dir_name))
             #os.mkdir(path)
             Path(path).mkdir(parents=True)
         except OSError:
@@ -1039,7 +1062,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                 print('deleted!')
 
             with open(file, 'rb') as f:
-                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
             
             updated.append([field, _id])
         
@@ -1102,7 +1125,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                     print('deleted!')
                 
                 with open(file, 'rb') as f:
-                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
 
                 runs_coll.update_one({ "Metadata.DBtag.run_collection_name": out_dir, "Metadata.DBtag.run_suffix": suffix }, 
                                  { "$set": {'Files.'+ doc: _id, "Metadata.DBtag.last_updated": strftime("%y%m%d-%H%M%S")} }
