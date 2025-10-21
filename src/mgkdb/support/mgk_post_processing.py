@@ -121,7 +121,7 @@ def get_suffixes(out_dir, sim_type):
 
     if sim_type=='GENE': ## scan all file with parameters 
         suffixes = [ os.path.basename(file).split('parameters')[-1] for file in glob.glob(os.path.join(out_dir,'parameters*')) if os.path.isfile(file)]
-        if len(suffixes) > 1:
+        if len(suffixes) > 1 and '' in suffixes:
             suffixes.remove('')
             print(f"Found multiple suffixes: {suffixes}. Removing empty suffix.")
     elif sim_type in ['CGYRO','TGLF','GS2','GX']:  ## scan folders return as list 
