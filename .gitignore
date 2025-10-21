@@ -9,3 +9,6 @@ build
 exploration_nbks/
 pyro_tests/
 dist/
+*.pkl
+DATA/
+.DS_Store
