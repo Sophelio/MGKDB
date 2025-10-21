@@ -9,5 +9,6 @@ build
 exploration_nbks/
 pyro_tests/
 dist/
-db_credentials.pkl
+*.pkl
 DATA/
+.DS_Store
