@@ -128,7 +128,14 @@ def f_check_required_files(global_vars, fldr, suffix, sim_type):
     files_exist=True 
 
     for fname in global_vars.required_files:
-        file = os.path.join(fldr,fname+suffix) if sim_type=='GENE' else os.path.join(fldr,suffix,fname)
+        if sim_type=='GENE':
+            file = os.path.join(fldr,fname+suffix)
+        elif sim_type=='TGLF' and suffix.startswith('_'):
+            # New format: suffix is in filename (e.g., input.tglf_0.3500)
+            file = os.path.join(fldr, fname + suffix)
+        else:
+            # Original format: suffix is subdirectory
+            file = os.path.join(fldr,suffix,fname)
 
         if not os.path.isfile(file) :
             print('Necessary file %s does not exist. Skipping this suffix %s'%(file,suffix))
@@ -720,8 +727,14 @@ def isLinear(folder_name, sim_type):
         return linear
     
     elif sim_type=='TGLF':
-
-        fname = os.path.join(folder_name, suffix, 'input.tglf')
+        # Handle both formats: subdirectory or filename suffix
+        if suffix.startswith('_'):
+            # New format: suffix is in filename (e.g., input.tglf_0.3500)
+            fname = os.path.join(folder_name, 'input.tglf' + suffix)
+        else:
+            # Original format: suffix is subdirectory
+            fname = os.path.join(folder_name, suffix, 'input.tglf')
+        
         assert os.path.isfile(fname),"File %s does not exist"%(fname)
 
         with open(fname,'r') as f:
@@ -1117,7 +1130,8 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                             { "$set": {'gyrokineticsIMAS': GK_dict, 'Diagnostics':Diag_dict}}
                                  )
 
-                file = os.path.join(out_dir, doc  + suffix)
+                # Use f_get_full_fname to handle both GENE and TGLF formats correctly
+                file = f_get_full_fname(sim_type, out_dir, suffix, doc)
                 grid_out = fs.find({'filepath': file})
                 for grid in grid_out:
                     print('File with path tag:\n{}\n'.format(grid.filepath) )
@@ -1210,7 +1224,11 @@ def f_get_full_fname(sim_type, fldr, suffix, fname):
     '''
     if sim_type=='GENE':
         full_fname = os.path.join(fldr,fname+suffix)
+    elif sim_type=='TGLF' and suffix.startswith('_'):
+        # New format: suffix is in filename (e.g., input.tglf_0.3500)
+        full_fname = os.path.join(fldr, fname + suffix)
     else: 
+        # Original format: suffix is subdirectory (e.g., TGLF_linear/input.tglf)
         full_fname = os.path.join(fldr,suffix,fname)
 
     return full_fname
@@ -1286,6 +1304,10 @@ def f_get_input_fname(out_dir, suffix, sim_type):
     Get the name of the input file with suffix for the simluation type
     '''
 
+    if sim_type=='TGLF' and suffix.startswith('_'):
+        # New format: suffix is in filename (e.g., input.tglf_0.3500)
+        return os.path.join(out_dir, 'input.tglf' + suffix)
+    
     fname_dict = {'CGYRO':os.path.join(out_dir,suffix,'input.cgyro'),
                     'TGLF':os.path.join(out_dir,suffix,'input.tglf'),
                     'GENE':os.path.join(out_dir,'parameters{0}'.format(suffix)),
