@@ -124,7 +124,29 @@ def get_suffixes(out_dir, sim_type):
         if len(suffixes) > 1 and '' in suffixes:
             suffixes.remove('')
             print(f"Found multiple suffixes: {suffixes}. Removing empty suffix.")
-    elif sim_type in ['CGYRO','TGLF','GS2','GX']:  ## scan folders return as list 
+    elif sim_type=='TGLF':
+        # First check for subdirectories (original format)
+        subdirs = [fldr for fldr in os.listdir(out_dir) if os.path.isdir(os.path.join(out_dir,fldr))]
+        if subdirs:
+            # Original format: subdirectories
+            suffixes = subdirs
+        else:
+            # New format: files with suffixes in filenames (like GENE format)
+            # Look for input.tglf files with suffixes (e.g., input.tglf_0.3500)
+            input_files = glob.glob(os.path.join(out_dir,'input.tglf*'))
+            for file in input_files:
+                if os.path.isfile(file):
+                    basename = os.path.basename(file)
+                    # Extract suffix after 'input.tglf' (handles both input.tglf_0.3500 and input.tglf.gen_0.3500)
+                    if basename.startswith('input.tglf'):
+                        # Find the last underscore and extract everything after it as the suffix
+                        if '_' in basename:
+                            # Split on underscore and take everything after the first underscore
+                            # This handles both 'input.tglf_0.3500' and 'input.tglf.gen_0.3500'
+                            suffix = '_' + basename.split('_', 1)[1]
+                            if suffix not in suffixes:
+                                suffixes.append(suffix)
+    elif sim_type in ['CGYRO','GS2','GX']:  ## scan folders return as list 
         # suffixes = [os.path.basename(fldr) for fldr in os.listdir(out_dir) os.path.isdir(os.path.join(out_dir,fldr))]
         suffixes = [fldr for fldr in os.listdir(out_dir) if os.path.isdir(os.path.join(out_dir,fldr))]
     suffixes.sort()

@@ -1,0 +1,152 @@
+#-------------------------------------------------------------------------
+# TGLF input file modified by MITIM 4.0.0
+#-------------------------------------------------------------------------
+
+# Control parameters
+# ------------------
+
+USE_TRANSPORT_MODEL     = True
+WRITE_WAVEFUNCTION_FLAG = 0
+IFLUX                   = True
+GEOMETRY_FLAG           = 1
+SIGN_IT                 = 1.00000E+00
+SIGN_BT                 = 1.00000E+00
+NN_MAX_ERROR            = -1.00000E+00
+SAT_RULE                = 3
+UNITS                   = CGYRO
+ETG_FACTOR              = 1.25000E+00
+ADIABATIC_ELEC          = False
+THETA_TRAPPED           = 7.00000E-01
+USE_BPER                = False
+USE_BPAR                = False
+USE_MHD_RULE            = False
+XNU_MODEL               = 3
+VPAR_MODEL              = 0
+VPAR_SHEAR_MODEL        = 1
+USE_AVE_ION_GRID        = False
+USE_INBOARD_DETRAPPED   = False
+RLNP_CUTOFF             = 1.80000E+01
+NEW_EIKONAL             = True
+KYGRID_MODEL            = 1
+NKY                     = 19
+KY                      = 3.00000E-01
+FIND_WIDTH              = True
+USE_BISECTION           = True
+WIDTH                   = 1.65000E+00
+WIDTH_MIN               = 3.00000E-01
+NWIDTH                  = 21
+NBASIS_MIN              = 2
+NBASIS_MAX              = 4
+NXGRID                  = 16
+IBRANCH                 = -1
+NMODES                  = 5
+ALPHA_QUENCH            = 0.00000E+00
+ALPHA_E                 = 1.00000E+00
+ALPHA_MACH              = 0.00000E+00
+ALPHA_ZF                = 1.00000E+00
+DEBYE_FACTOR            = 1.00000E+00
+XNU_FACTOR              = 1.00000E+00
+ALPHA_P                 = 1.00000E+00
+PARK                    = 1.00000E+00
+GHAT                    = 1.00000E+00
+GCHAT                   = 1.00000E+00
+DAMP_PSI                = 0.00000E+00
+DAMP_SIG                = 0.00000E+00
+LINSKER_FACTOR          = 0.00000E+00
+GRADB_FACTOR            = 0.00000E+00
+WD_ZERO                 = 1.00000E-01
+FILTER                  = 2.00000E+00
+WDIA_TRAPPED            = 1.00000E+00
+
+
+# Plasma/Geometry parameters
+# ------------------
+
+SIGN_IT                 = 1.00000E+00
+SIGN_BT                 = -1.00000E+00
+NS                      = 3
+VEXB                    = 0.00000E+00
+VEXB_SHEAR              = 4.52428E-02
+XNUE                    = 4.40136E-01
+ZEFF                    = 2.17530E+00
+DEBYE                   = 1.72927E-02
+BETAE                   = 2.82008E-03
+RMIN_LOC                = 7.57979E-01
+RMAJ_LOC                = 3.23291E+00
+ZMAJ_LOC                = -3.65215E-02
+DRMINDX_LOC             = 1.00000E+00
+DRMAJDX_LOC             = -2.88034E-01
+DZMAJDX_LOC             = -4.17295E-02
+Q_LOC                   = 1.78392E+00
+KAPPA_LOC               = 1.37928E+00
+S_KAPPA_LOC             = 3.39011E-02
+DELTA_LOC               = -1.66423E-01
+S_DELTA_LOC             = -3.22612E-01
+ZETA_LOC                = -5.59587E-02
+S_ZETA_LOC              = -1.09007E-01
+Q_PRIME_LOC             = 6.43654E+00
+P_PRIME_LOC             = -1.79407E-03
+SHAPE_COS0              = 3.44186E-03
+SHAPE_S_COS0            = 2.99255E-02
+SHAPE_COS1              = -3.01688E-02
+SHAPE_S_COS1            = -3.41346E-02
+SHAPE_COS2              = -1.38165E-02
+SHAPE_S_COS2            = -3.33577E-02
+SHAPE_COS3              = -3.91894E-03
+SHAPE_S_COS3            = -1.02067E-02
+SHAPE_COS4              = -6.81002E-04
+SHAPE_S_COS4            = -2.36403E-04
+SHAPE_COS5              = -4.54424E-04
+SHAPE_S_COS5            = -1.91608E-03
+SHAPE_SIN3              = 2.53341E-02
+SHAPE_S_SIN3            = 7.17082E-02
+SHAPE_SIN4              = 1.25361E-02
+SHAPE_S_SIN4            = 4.66698E-02
+SHAPE_SIN5              = 2.80995E-03
+SHAPE_S_SIN5            = 9.67565E-03
+SHAPE_COS6              = 0.00000E+00
+SHAPE_S_COS6            = 0.00000E+00
+SHAPE_SIN6              = 0.00000E+00
+SHAPE_S_SIN6            = 0.00000E+00
+BETA_LOC                = 0.00000E+00
+KX0_LOC                 = 0.00000E+00
+
+
+# Species
+# -------
+
+# Specie #1 (electrons)
+ZS_1         = -1.00000E+00
+MASS_1       = 2.72444E-04
+RLNS_1       = 6.92987E-01
+RLTS_1       = 3.31283E+00
+TAUS_1       = 1.00000E+00
+AS_1         = 1.00000E+00
+VPAR_1       = -2.72202E-02
+VPAR_SHEAR_1 = 3.44240E-01
+VNS_SHEAR_1  = 0.00000E+00
+VTS_SHEAR_1  = 0.00000E+00
+
+# Specie #2 (thermal ion)
+ZS_2         = 1.00000E+00
+MASS_2       = 1.00026E+00
+RLNS_2       = 6.92993E-01
+RLTS_2       = 2.49538E+00
+TAUS_2       = 1.08729E+00
+AS_2         = 7.64940E-01
+VPAR_2       = -2.72202E-02
+VPAR_SHEAR_2 = 3.44240E-01
+VNS_SHEAR_2  = 0.00000E+00
+VTS_SHEAR_2  = 0.00000E+00
+
+# Specie #3 (thermal ion)
+ZS_3         = 6.00000E+00
+MASS_3       = 5.96501E+00
+RLNS_3       = 6.92982E-01
+RLTS_3       = 2.49538E+00
+TAUS_3       = 1.08729E+00
+AS_3         = 3.91767E-02
+VPAR_3       = -2.72202E-02
+VPAR_SHEAR_3 = 3.44240E-01
+VNS_SHEAR_3  = 0.00000E+00
+VTS_SHEAR_3  = 0.00000E+00
