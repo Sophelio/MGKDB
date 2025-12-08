@@ -234,14 +234,14 @@ if __name__=="__main__":
 
     # data_dir = "test_data/test_gene1_tracer_efit/"
     # data_dir = "test_data/test_gene2_miller_general/"
-    # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene1_tracer_efit/'
+    data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene1_tracer_efit/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene2_miller_general/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene5_non_st_single_prec/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene6_non_st_double_prec/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/test_gene7_non_st_double_prec/'
-    data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/GENE_fingerprints_march_2025/pscans_hask/scanfiles0002/'
+    # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/GENE_fingerprints_march_2025/pscans_hask/scanfiles0002/'
     # data_dir = '/Users/venkitesh_work/Documents/work/Sapient_AI/Data/mgkdb_data/pyro_tests_data/data/GENE_fingerprints_march_2025/test/'
-    suffix='_0008'
+    suffix='_0001'
     fname = data_dir+'parameters{0}'.format(suffix)
     gkcode="GENE"
     

@@ -5,14 +5,13 @@ Main script to handle uploading a set of runs with same metadata to the MGK data
 @author: Austin Blackmon, Dongyang Kuang, Venkitesh Ayyar
 """
 
-import sys
 import os
 import argparse
 from sys import exit
 from bson.objectid import ObjectId
 
-from mgkdb.support.mgk_file_handling import get_suffixes, upload_to_mongo, isLinear, Global_vars, f_get_linked_oid, f_set_metadata, f_load_config, f_user_input_metadata
-from mgkdb.support.mgk_login import mgk_login,f_login_dbase
+from support.mgk_file_handling import get_suffixes, upload_to_mongo, isLinear, Global_vars, f_get_linked_oid, f_set_metadata, f_load_config, f_user_input_metadata
+from support.mgk_login import mgk_login,f_login_dbase
 
 import yaml 
 
@@ -133,7 +132,7 @@ def main_upload(target, default, sim_type, extra, authenticate, verbose, large_f
             reupload_if_exists = False
             
         upload_to_mongo(database, linear, metadata, upload_folder, suffixes, run_shared,
-                        large_files, extra, verbose, manual_time_flag, global_vars, no_prompts=no_prompts, reupload_if_exists=reupload_if_exists)
+                        large_files, verbose, manual_time_flag, global_vars, no_prompts=no_prompts, reupload_if_exists=reupload_if_exists)
 
 def main():
 
@@ -148,3 +147,5 @@ def main():
 if __name__=="__main__":
     main()
 
+# Example command : 
+## python mgk_uploader.py -A <fname.pkl> -T test_data/test_gene1_tracer_efit -SIM GENE -C template_user_input.yaml

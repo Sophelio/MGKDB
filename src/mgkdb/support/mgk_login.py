@@ -10,6 +10,7 @@ Functions for handling credentials
 import pymongo
 import pickle
 import os
+import urllib.parse
 
 class mgk_login(object):
     def __init__(self, server='mongodb03.nersc.gov', port='27017', dbname='mgk_fusion', 
@@ -46,7 +47,19 @@ class mgk_login(object):
         # database = MongoClient(self.login['server'].strip(), int(self.login['port']) )[self.login['dbname'].strip()]
         # database.authenticate(self.login['user'].strip(), self.login['pwd'].strip())
 
-        client = pymongo.MongoClient('mongodb://{user}:{pwd}@{server}:{port}/{dbname}'.format(**self.login),directConnection=True)
+        # URL encode the password to handle special characters safely
+        encoded_pwd = urllib.parse.quote_plus(self.login['pwd'])
+        
+        # Create connection string with encoded password
+        mongodb_url = 'mongodb://{user}:{pwd}@{server}:{port}/{dbname}'.format(
+            user=self.login['user'],
+            pwd=encoded_pwd, 
+            server=self.login['server'],
+            port=self.login['port'],
+            dbname=self.login['dbname']
+        )
+        
+        client = pymongo.MongoClient(mongodb_url, directConnection=True)
         database = client[self.login['dbname']]
         return client, database
         

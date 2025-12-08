@@ -1,0 +1,52 @@
+### Template for metadata
+
+# Confidence Metadata Guidelines:
+#   Confidence | Description
+#   -----------|----------------------------------------------------------------
+#   3          | Simulation explicitly checked for convergence on at least one variable, add comments with details on which variable
+#   2          | Simulation derived or restarted from more rigorously checked simulation in database
+#   1          | Simulation checked visually for sufficiency, e.g.:
+#              |   • Fluxes appear to saturate near end of simulation
+#              |   • Perturbed structures not piling up at edge of simulated domains
+#              |   • Flux contributions not dominating from wavenumbers at edge of simulated range
+#   0          | Simulation output was generated
+
+
+## multiple entries must be separated by commas
+user_input:
+  suffixes:     _0001,_0002 ## For including all, leave empty
+  extra_files:   ## Extra files for each suffix
+  shared_files:  fingerprints.csv ## Common file for each suffix
+  no_prompts: True ## Skip all prompts. Useful in workflows
+  reupload_if_exists: True ## If run exists, delete and re-upload
+
+metadata:
+  DBtag:
+    user: ""
+    run_collection_name:   ## Added automatically
+    run_suffix:            ## Added automatically
+    keywords: ""
+    confidence: 3       ## 0 - 3 : use guidelines given above. Default is 0
+    comments: ""
+    time_uploaded:      ## Added automatically
+    last_updated:       ## Added automatically
+    linkedObjectID:     ## String converted to a ObjectID if exists
+    archiveLocation: 
+    IsRestart:
+      restart: False
+      Timestep: 0
+      InitObjectId: 
+  ScenarioTag:
+    Name of actual of hypothetical experiment: ""
+    scenario_runid: ""
+  CodeTag:
+    sim_type:      ## Leave empty, set automatically in main code
+    IsLinear:      ## Added automatically
+    quasi_linear:  ## Added automatically
+    Has1DFluxes:   ## Added automatically
+    git_hash: ""
+    platform: ""
+    execution_date: ""
+    workflow_type: ""
+  Publications:
+    doi: []

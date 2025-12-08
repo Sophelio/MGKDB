@@ -19,7 +19,7 @@ def main():
     O2_1 = input("Plese enter a target path to save the file in .pkl format. For example : ../db_credentials.pkl  \n")
     login.save(os.path.abspath(O2_1))
 
-    database = login.connect()
+    client, database = login.connect()
 
     print("Successfully connected to database")
     print("Following collections exist in database",database.list_collection_names())

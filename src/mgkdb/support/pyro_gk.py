@@ -6,6 +6,8 @@ import idspy_toolkit as idspy
 from idspy_dictionaries import ids_gyrokinetics_local as gkids
 from pathlib import Path
 import os
+import shutil
+import tempfile
 
 # 
 def convert_to_json(obj,separate_real_imag = False):
@@ -110,8 +112,72 @@ def create_gk_dict_with_pyro(fname,gkcode):
 
     assert gkcode in ['GENE','CGYRO','TGLF','GS2','GX'], "invalid gkcode type %s"%(gkcode)
     
+    # For TGLF with filename suffixes (e.g., input.tglf_0.8500), create a temporary subdirectory
+    # structure matching the original format (suffix as subdirectory) so pyrokinetics can find files
+    temp_dir = None
+    temp_dir_created = False
+    temp_files_created = []  # Track files we create so we can clean them up
     try: 
+        dir_path = os.path.dirname(fname)
+        basename = os.path.basename(fname)
+        
+        if gkcode == 'TGLF' and '_' in basename:
+            # Extract suffix (e.g., '_0.8500' from 'input.tglf_0.8500')
+            suffix = '_' + basename.split('_', 1)[1]
+            
+            # Create a temporary subdirectory with the suffix name (without leading underscore)
+            # This matches the original format where suffix is a subdirectory
+            suffix_dirname = suffix.lstrip('_')  # Remove leading underscore for directory name
+            temp_suffix_dir = os.path.join(dir_path, suffix_dirname)
+            
+            # Check if directory already exists (from previous processing)
+            dir_existed = os.path.exists(temp_suffix_dir)
+            
+            # Create the temporary subdirectory if it doesn't exist
+            if not dir_existed:
+                os.makedirs(temp_suffix_dir)
+                temp_dir_created = True
+            temp_dir = temp_suffix_dir
+            
+            # Copy or symlink all files with this suffix into the temporary subdirectory
+            # Find all files with this suffix
+            import glob
+            all_files = glob.glob(os.path.join(dir_path, f'*{suffix}'))
+            
+            for suffixed_file in all_files:
+                if os.path.isfile(suffixed_file):
+                    # Get the base filename without suffix
+                    file_basename = os.path.basename(suffixed_file)
+                    # Remove the suffix to get the original filename
+                    if file_basename.endswith(suffix):
+                        base_filename = file_basename[:-len(suffix)]
+                        target_path = os.path.join(temp_suffix_dir, base_filename)
+                        
+                        # Create symlink (or copy if symlink fails) only if target doesn't exist
+                        if not os.path.exists(target_path):
+                            try:
+                                # Use relative path for symlink
+                                rel_source = os.path.relpath(suffixed_file, temp_suffix_dir)
+                                os.symlink(rel_source, target_path)
+                                temp_files_created.append(target_path)
+                            except (OSError, AttributeError):
+                                # If symlink fails, copy the file
+                                shutil.copy2(suffixed_file, target_path)
+                                temp_files_created.append(target_path)
+            
+            # Update the input file path to point to the temporary subdirectory
+            input_base = 'input.tglf'
+            if basename.startswith('input.tglf'):
+                # Handle both 'input.tglf_0.8500' and 'input.tglf.gen_0.8500'
+                if '.gen' in basename:
+                    input_base = 'input.tglf.gen'
+                fname = os.path.join(temp_suffix_dir, input_base)
+            else:
+                fname = os.path.join(temp_suffix_dir, input_base)
+        
+        # Initialize Pyro with the (possibly modified) input file path
         pyro = Pyro(gk_file=fname, gk_code=gkcode)
+        
         linear = not pyro.numerics.nonlinear
 
         if gkcode=='TGLF':   
@@ -148,5 +214,26 @@ def create_gk_dict_with_pyro(fname,gkcode):
     except Exception as e: 
         print(e)
         raise SystemError
+    finally:
+        # Clean up files we created
+        for file_path in temp_files_created:
+            try:
+                if os.path.exists(file_path):
+                    if os.path.islink(file_path):
+                        os.remove(file_path)
+                    elif os.path.isfile(file_path):
+                        os.remove(file_path)
+            except (OSError, AttributeError):
+                pass
+        
+        # Clean up temporary directory only if we created it
+        # (Don't remove if it already existed, as it might be used by other processes)
+        if temp_dir_created and temp_dir and os.path.exists(temp_dir):
+            try:
+                # Check if directory is empty before removing
+                if not os.listdir(temp_dir):
+                    os.rmdir(temp_dir)
+            except (OSError, AttributeError) as cleanup_error:
+                print(f"Warning: Could not clean up temporary directory {temp_dir}: {cleanup_error}")
     
     return json_data,quasi_linear

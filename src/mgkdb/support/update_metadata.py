@@ -62,7 +62,7 @@ if __name__=="__main__":
     
     ### Connect to database 
     login = f_login_dbase(authenticate)
-    database = login.connect()
+    client, database = login.connect()
 
     #### Dict to convert from argument to collection name in database
     collection_dict={'linear':'LinearRuns','nonlinear':'NonlinRuns','files':'fs.files'}

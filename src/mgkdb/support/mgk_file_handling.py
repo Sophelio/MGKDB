@@ -42,6 +42,13 @@ class Global_vars():
     '''
     def __init__(self, sim_type):
 
+        self.set_vars(sim_type)
+        #User specified files#
+        self.Docs_ex = [] 
+        self.update_docs_keys()
+        self.troubled_runs = [] # a global list to collection runs where exception happens
+
+    def set_vars(self, sim_type):
         if sim_type=="GENE":
 
             self.required_files = ['field', 'nrg', 'omega','parameters']
@@ -87,27 +94,23 @@ class Global_vars():
         
         else : 
             print("Invalid simulation type",sim_type)
-            raise SystemError
+            raise SystemError 
         
         ### Keys used for filenames 
         self.Keys = [fname.replace('.','_') for fname in self.Docs]
-        
-        #User specified files#
-        self.Docs_ex = [] 
-        # self.Keys_ex = []
-
-        self.update_docs_keys()
-        
-        self.troubled_runs = [] # a global list to collection runs where exception happens
 
     def update_docs_keys(self):
 
         self.all_file_docs = self.Docs + self.Docs_ex
+        ## Drop any duplicates 
+        self.all_file_docs = list(set(self.all_file_docs))
+
         self.all_file_keys =  [fname.replace('.','_') for fname in self.all_file_docs]
     
     def reset_docs_keys(self,sim_type):
         ## Reset values 
-        self.__init__(sim_type)
+        self.set_vars(sim_type)
+        self.update_docs_keys() ## Update extra files
         print("File names and their key names are reset to default!")
 
 def f_load_config(config_file):
@@ -125,7 +128,14 @@ def f_check_required_files(global_vars, fldr, suffix, sim_type):
     files_exist=True 
 
     for fname in global_vars.required_files:
-        file = os.path.join(fldr,fname+suffix) if sim_type=='GENE' else os.path.join(fldr,suffix,fname)
+        if sim_type=='GENE':
+            file = os.path.join(fldr,fname+suffix)
+        elif sim_type=='TGLF' and suffix.startswith('_'):
+            # New format: suffix is in filename (e.g., input.tglf_0.3500)
+            file = os.path.join(fldr, fname + suffix)
+        else:
+            # Original format: suffix is subdirectory
+            file = os.path.join(fldr,suffix,fname)
 
         if not os.path.isfile(file) :
             print('Necessary file %s does not exist. Skipping this suffix %s'%(file,suffix))
@@ -151,12 +161,26 @@ def f_user_input_metadata(database):
         return user_ip
 
     print("Please provide input for metadata. Press Enter to skip that entry.\n")
-    confidence = input('What is your confidence (1-10) for the run? Press ENTER to use default value -1.0\n')
-    if len(confidence):
-        confidence = float(confidence)
-    else:
-        confidence = -1.0
-        print("Using default confidence -1.\n")
+
+    guidelines = """Confidence Guidelines:
+    Confidence | Description
+    -----------|----------------------------------------------------------------
+    3          | Simulation explicitly checked for convergence on at least one variable, add comments with details on which variable
+    2          | Simulation derived or restarted from more rigorously checked simulation in database
+    1          | Simulation checked visually for sufficiency, e.g.:
+               |   • Fluxes appear to saturate near end of simulation
+               |   • Perturbed structures not piling up at edge of simulated domains
+               |   • Flux contributions not dominating from wavenumbers at edge of simulated range
+    0          | Simulation output was generated
+    """
+
+    # Prompt the user for confidence level, displaying the guidelines
+    confidence = input(f"{guidelines}\nWhat is your confidence (0-3) for the run? Press ENTER to use default value 0\n") or "0"
+
+    if int(confidence) not in range(4):
+        print("Invalid input confidence value. Must be between 0 and 3. Using default confidence value of 0.")
+        print(f"Confidence level set to: {confidence}")
+        confidence = 0
 
     user_ip['confidence']= confidence 
 
@@ -207,7 +231,7 @@ def f_user_input_metadata(database):
 
     return user_ip
 
-def f_set_metadata(user=None,out_dir=None,suffix=None,keywords=None,confidence=-1,comments='Uploaded with default settings.',time_upload=None,\
+def f_set_metadata(user=None,out_dir=None,suffix=None,keywords=None,confidence=0,comments='Uploaded with default settings.',time_upload=None,\
                    last_update=None, linked_ID=None, expt=None, scenario_runid=None, linear=None, quasiLinear=None, has_1dflux = None, sim_type=None,\
                    git_hash=None, platform=None, ex_date=None, workflow_type=None, archive_loc=None, restart=False, restart_timestep=0, initial_run_oid=None):
 
@@ -703,8 +727,14 @@ def isLinear(folder_name, sim_type):
         return linear
     
     elif sim_type=='TGLF':
-
-        fname = os.path.join(folder_name, suffix, 'input.tglf')
+        # Handle both formats: subdirectory or filename suffix
+        if suffix.startswith('_'):
+            # New format: suffix is in filename (e.g., input.tglf_0.3500)
+            fname = os.path.join(folder_name, 'input.tglf' + suffix)
+        else:
+            # Original format: suffix is subdirectory
+            fname = os.path.join(folder_name, suffix, 'input.tglf')
+        
         assert os.path.isfile(fname),"File %s does not exist"%(fname)
 
         with open(fname,'r') as f:
@@ -775,7 +805,7 @@ def not_uploaded_list(out_dir, runs_coll, write_to = None):
     '''
     not_uploaded = []
     for dirpath, dirnames, files in os.walk(out_dir):
-        if str(dirpath).find('in_par') == -1 and str(files).find('parameters') != -1:
+        if 'in_par' not in str(dirpath) and 'parameters' in str(files):
             if not isUploaded(dirpath, runs_coll):
                 not_uploaded.append(dirpath)
     
@@ -846,7 +876,7 @@ def download_file_by_path(db, filepath, destination, revision=-1, session=None):
     count = 0
     for record in records:
         _id = record['_id']
-        filename = record['filepath'].split('/')[-1]
+        filename = os.path.basename(record['filepath'])
         with open(os.path.join(destination, filename+'_mgk{}'.format(count) ),'wb+') as f:
             fs.download_to_stream(_id, f)
             count +=1
@@ -877,7 +907,7 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
     dir_name: as appear in db.Metadata['run_collection_name']
     destination: destination to place files
     '''
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
     if not os.path.exists(path):    
         try:
             #os.mkdir(path)
@@ -887,23 +917,45 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
     #else:
     fs = gridfs.GridFSBucket(db)
     inDb = runs_coll.find({ "Metadata.DBtag.run_collection_name": dir_name })
+    
+    # Convert cursor to list to check if any records exist
+    inDb_list = list(inDb)
+    if not inDb_list:
+        print(f"No records found in database for directory: {dir_name}")
+        print("Please check:")
+        print("1. The directory name is correct and exists in the database")
+        print("2. You are connected to the correct database")
+        print("3. The collection name is correct (linear vs nonlinear)")
+        return
 
-    if 'generr' in inDb[0]['Files'].keys(): ## Fix for when 'generr' doesn't exist
-        if inDb[0]['Files']['geneerr'] != 'None':    
+    if 'generr' in inDb_list[0]['Files'].keys(): ## Fix for when 'generr' doesn't exist
+        if inDb_list[0]['Files']['geneerr'] != 'None' and inDb_list[0]['Files']['geneerr'] is not None:    
             with open(os.path.join(path, 'geneerr.log'),'wb+') as f:
-                fs.download_to_stream(inDb[0]['Files']['geneerr'], f, session=None)
+                fs.download_to_stream(inDb_list[0]['Files']['geneerr'], f, session=None)
 
-    for record in inDb:
+    for record in inDb_list:
         '''
         Download 'files'
         '''
         for key, val in record['Files'].items():
-            if val != 'None' and key not in ['geneerr']:
-                filename = db.fs.files.find_one(val)['filename']
-                with open(os.path.join(path, filename),'wb+') as f:
-#                    fs.download_to_stream_by_name(filename, f, revision=-1, session=None)
-                    fs.download_to_stream(val, f, session=None)
-                record['Files'][key] = str(val)
+            if val != 'None' and val is not None and key not in ['geneerr']:
+                try:
+                    file_record = db.fs.files.find_one(val)
+                    if file_record is not None:
+                        filename = file_record['filename']
+                        with open(os.path.join(path, filename),'wb+') as f:
+                            fs.download_to_stream(val, f, session=None)
+                        record['Files'][key] = str(val)
+                    else:
+                        print(f"Warning: File with ObjectId {val} not found in GridFS for key {key}")
+                        record['Files'][key] = 'None'
+                except Exception as e:
+                    print(f"Error downloading file for key {key} with ObjectId {val}: {e}")
+                    record['Files'][key] = 'None'
+            else:
+                print(f"Skipping file {key} (value: {val})")
+                record['Files'][key] = str(val) if val is not None else 'None'
+                
         if 'generr' in record['Files'].keys():  ## Fix for when 'generr' doesn't exist 
             record['Files']['geneerr'] = str(record['Files']['geneerr'])
         
@@ -914,18 +966,19 @@ def download_dir_by_name(db, runs_coll, dir_name, destination):
         fsf=gridfs.GridFS(db)
         for key, val in record['Diagnostics'].items():
             if isinstance(val, ObjectId):
-#                data = _loadNPArrays(db, val)
-#                data = _binary2npArray(fsf.get(val).read()) # no need to store data
-                record['Diagnostics'][key] = str(val)
-#                data = _binary2npArray(fsf.get(val).read()) 
-#                np.save( os.path.join(path,str(record['_id'])+'-'+key), data)
-                diag_dict[key] = _binary2npArray(fsf.get(val).read())
+                try:
+                    record['Diagnostics'][key] = str(val)
+                    diag_dict[key] = _binary2npArray(fsf.get(val).read())
+                except Exception as e:
+                    print(f"Error loading diagnostic data for key {key}: {e}")
+                    record['Diagnostics'][key] = 'None'
             
-        with open(os.path.join(path,str(record['_id'])+'-'+'diagnostics.pkl'), 'wb') as handle:
-            pickle.dump(diag_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        if diag_dict:  # Only create file if there's data
+            with open(os.path.join(path,str(record['_id'])+'-'+'diagnostics.pkl'), 'wb') as handle:
+                pickle.dump(diag_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
                 
         record['_id'] = str(record['_id'])
-        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['run_suffix']+'.json'), 'w') as f:
+        with open(os.path.join(path, 'mgkdb_summary_for_run'+record['Metadata']['DBtag']['run_suffix']+'.json'), 'w') as f:
             json.dump(record, f)
            
     print ("Successfully downloaded to the directory %s " % path)
@@ -944,11 +997,11 @@ def download_runs_by_id(db, runs_coll, _id, destination):
         print("Entry not found in database, please double check the id")
         raise SystemExit
         
-    path = os.path.join(destination, dir_name.split('/')[-1])
+    path = os.path.join(destination, os.path.basename(dir_name))
 
     if not os.path.exists(path):
         try:
-#            path = os.path.join(destination, dir_name.split('/')[-1])
+#            path = os.path.join(destination, os.path.basename(dir_name))
             #os.mkdir(path)
             Path(path).mkdir(parents=True)
         except OSError:
@@ -1022,7 +1075,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                 print('deleted!')
 
             with open(file, 'rb') as f:
-                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
             
             updated.append([field, _id])
         
@@ -1077,7 +1130,8 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                             { "$set": {'gyrokineticsIMAS': GK_dict, 'Diagnostics':Diag_dict}}
                                  )
 
-                file = os.path.join(out_dir, doc  + suffix)
+                # Use f_get_full_fname to handle both GENE and TGLF formats correctly
+                file = f_get_full_fname(sim_type, out_dir, suffix, doc)
                 grid_out = fs.find({'filepath': file})
                 for grid in grid_out:
                     print('File with path tag:\n{}\n'.format(grid.filepath) )
@@ -1085,7 +1139,7 @@ def update_mongo(db, metadata, out_dir, runs_coll, linear, suffixes=None):
                     print('deleted!')
                 
                 with open(file, 'rb') as f:
-                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=file.split('/')[-1])
+                    _id = fs.put(f, encoding='UTF-8', filepath=file, filename=os.path.basename(file))
 
                 runs_coll.update_one({ "Metadata.DBtag.run_collection_name": out_dir, "Metadata.DBtag.run_suffix": suffix }, 
                                  { "$set": {'Files.'+ doc: _id, "Metadata.DBtag.last_updated": strftime("%y%m%d-%H%M%S")} }
@@ -1170,7 +1224,11 @@ def f_get_full_fname(sim_type, fldr, suffix, fname):
     '''
     if sim_type=='GENE':
         full_fname = os.path.join(fldr,fname+suffix)
+    elif sim_type=='TGLF' and suffix.startswith('_'):
+        # New format: suffix is in filename (e.g., input.tglf_0.3500)
+        full_fname = os.path.join(fldr, fname + suffix)
     else: 
+        # Original format: suffix is subdirectory (e.g., TGLF_linear/input.tglf)
         full_fname = os.path.join(fldr,suffix,fname)
 
     return full_fname
@@ -1246,6 +1304,10 @@ def f_get_input_fname(out_dir, suffix, sim_type):
     Get the name of the input file with suffix for the simluation type
     '''
 
+    if sim_type=='TGLF' and suffix.startswith('_'):
+        # New format: suffix is in filename (e.g., input.tglf_0.3500)
+        return os.path.join(out_dir, 'input.tglf' + suffix)
+    
     fname_dict = {'CGYRO':os.path.join(out_dir,suffix,'input.cgyro'),
                     'TGLF':os.path.join(out_dir,suffix,'input.tglf'),
                     'GENE':os.path.join(out_dir,'parameters{0}'.format(suffix)),
@@ -1256,7 +1318,7 @@ def f_get_input_fname(out_dir, suffix, sim_type):
     return fname_dict[sim_type]
 
 def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared=None,
-                large_files=False, extra=False, verbose=True, manual_time_flag=True, global_vars=None):
+                large_files=False, verbose=True, manual_time_flag=True, global_vars=None):
     """
     Uploads simulation run data to the database, handling both linear and nonlinear runs.
 
@@ -1268,7 +1330,6 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: True.
     - global_vars: Object containing global variables for the upload process.
@@ -1396,7 +1457,7 @@ def upload_runs(db, metadata, out_dir, is_linear=True, suffixes=None, run_shared
 
 
 def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=None,
-                    large_files=False, extra=False, verbose=True, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
+                    large_files=False, verbose=False, manual_time_flag=False, global_vars=None, no_prompts=False, reupload_if_exists=False):
     """
     Wrapper function to upload simulation runs to MongoDB, handling both linear and nonlinear runs.
 
@@ -1408,7 +1469,6 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     - suffixes: List of suffixes for files to upload. If None, determined automatically.
     - run_shared: List of shared files to upload (optional).
     - large_files: Boolean to handle large file uploads. Default: False.
-    - extra: Boolean for additional processing (optional). Default: False.
     - verbose: Boolean to print detailed output. Default: True.
     - manual_time_flag: Boolean to handle user-specified time spans for diagnostics. Default: False.
     - global_vars: Object containing global variables for the upload process.
@@ -1438,7 +1498,7 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
             print("Deleting {out_dir} and reuploading")
             remove_from_mongo(out_dir, db, runs_coll)
             upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                        large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                        large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
         elif update == '1':
             update_mongo(db, metadata, out_dir, runs_coll, linear)
         else:
@@ -1446,4 +1506,4 @@ def upload_to_mongo(db, linear, metadata, out_dir, suffixes=None, run_shared=Non
     else:
         print(f'Folder tag:\n{out_dir}\n not detected, creating new.\n')
         upload_runs(db, metadata, out_dir, is_linear=linear, suffixes=suffixes, run_shared=run_shared,
-                    large_files=large_files, extra=extra, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
+                    large_files=large_files, verbose=verbose, manual_time_flag=manual_time_flag, global_vars=global_vars)
