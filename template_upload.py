@@ -1,13 +1,20 @@
-import sys
 import os
-import argparse
-from sys import exit
+import sys
+from pathlib import Path
 
-from mgkdb import mgk_uploader
+# Add src/mgkdb to Python path so mgk_uploader can find the 'support' module
+sys.path.insert(0, str(Path(__file__).parent / "src" / "mgkdb"))
+
+from src.mgkdb import mgk_uploader
 
 
 # Example command : 
 ## python template_upload -A <fname.pkl> -T test_data/test_cgyro_multi_runs/ -SIM CGYRO 
+## Note, this assumes a structure of the form:
+## test_data/test_cgyro_multi_runs/runs/run1/
+## test_data/test_cgyro_multi_runs/runs/run2/
+## test_data/test_cgyro_multi_runs/configs/config1.yaml
+## test_data/test_cgyro_multi_runs/configs/config2.yaml
 
 if __name__=="__main__":
 

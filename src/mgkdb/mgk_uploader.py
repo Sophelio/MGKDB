@@ -7,13 +7,9 @@ Main script to handle uploading a set of runs with same metadata to the MGK data
 
 import os
 import argparse
-from sys import exit
-from bson.objectid import ObjectId
 
 from support.mgk_file_handling import get_suffixes, upload_to_mongo, isLinear, Global_vars, f_get_linked_oid, f_set_metadata, f_load_config, f_user_input_metadata
-from support.mgk_login import mgk_login,f_login_dbase
-
-import yaml 
+from support.mgk_login import f_login_dbase
 
 def f_parse_args():
     #==========================================================
