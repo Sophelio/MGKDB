@@ -149,6 +149,9 @@ def get_suffixes(out_dir, sim_type):
     elif sim_type in ['CGYRO','GS2','GX']:  ## scan folders return as list 
         # suffixes = [os.path.basename(fldr) for fldr in os.listdir(out_dir) os.path.isdir(os.path.join(out_dir,fldr))]
         suffixes = [fldr for fldr in os.listdir(out_dir) if os.path.isdir(os.path.join(out_dir,fldr))]
+        # If no subdirectories found, treat as single run with no suffix (empty string)
+        if not suffixes:
+            suffixes = ['']
     suffixes.sort()
     return suffixes
 
