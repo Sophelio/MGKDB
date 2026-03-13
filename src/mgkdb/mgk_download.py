@@ -23,7 +23,8 @@ def f_parse_args():
     #==========================================================
     parser = argparse.ArgumentParser(description='Process input for downloading files')
 
-    parser.add_argument('-Q', '--query', default= None,help='mongodb query')
+    parser.add_argument('-Q', '--query', default= None,
+        help='MongoDB query as JSON. E.g. {"Metadata.DBtag.run_collection_name": "path"} or {"Metadata.ScenarioTag.scenario_runid": {"$regex": "193870.3400"}}')
     parser.add_argument('-T', '--target', default= None,help='run collection_name, i.e. gene output folder path')
     parser.add_argument('-F', '--file', default = None, help='filename to be downloaded if any')
     parser.add_argument('-C', '--collection', choices=['linear','nonlinear','files'], default='linear', type=str, help='collection name in the database')
@@ -81,4 +82,12 @@ def main():
 
 if __name__=="__main__":
     main()
+
+'''
+python src/mgkdb/mgk_download.py -Q '{"Metadata.ScenarioTag.scenario_runid": {"$regex": "193870.3400"}}' -A ../db_ro_cred.pkl -C nonlinear -D ./out
+
+fileid = 6933167a9cadc1844e312496
+python src/mgkdb/mgk_download.py -OID 6933167a9cadc1844e312496 -A db_credentials.pkl -C files -D ./out
+
+'''
 

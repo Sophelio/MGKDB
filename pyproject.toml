@@ -21,7 +21,8 @@ classifiers = [
 dependencies = [
     'numpy>=1.24.3', 
     'h5py', 'pymongo',
-    'pyrokinetics>=0.8.0', 
+    'pyrokinetics>=0.8.0',
+    'packaging',
 ]
 
 [project.urls]

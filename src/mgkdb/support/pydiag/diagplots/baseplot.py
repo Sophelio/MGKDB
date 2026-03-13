@@ -7,9 +7,8 @@ Contains:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
 import matplotlib as mpl
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 if parse_version(mpl.__version__) >= parse_version("1.5"):
     from cycler import cycler
