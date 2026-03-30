@@ -1011,13 +1011,22 @@ def download_runs_by_id(db, runs_coll, _id, destination):
     Download 'files'
     '''
     for key, val in record['Files'].items():
-        if val != 'None':
-            filename = db.fs.files.find_one(val)['filename']
-            #print(db.fs.files.find_one(val)).keys()
-            with open(os.path.join(path, filename),'wb+') as f:
-#                    fs.download_to_stream_by_name(filename, f, revision=-1, session=None)
-                fs.download_to_stream(val, f, session=None)
-            record['Files'][key] = str(val)
+        if val != 'None' and val is not None:
+            try:
+                file_record = db.fs.files.find_one(val)
+                if file_record is not None:
+                    filename = file_record['filename']
+                    with open(os.path.join(path, filename),'wb+') as f:
+                        fs.download_to_stream(val, f, session=None)
+                    record['Files'][key] = str(val)
+                else:
+                    print(f"Warning: File with ObjectId {val} not found in GridFS for key '{key}', skipping.")
+                    record['Files'][key] = 'None'
+            except Exception as e:
+                print(f"Error downloading file for key '{key}' with ObjectId {val}: {e}")
+                record['Files'][key] = 'None'
+        else:
+            record['Files'][key] = str(val) if val is not None else 'None'
             
     '''
     Deal with diagnostic data
