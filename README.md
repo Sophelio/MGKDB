@@ -1,11 +1,16 @@
 # **MGKDB**
 
+## Installation
+The easiest way to install this package is after installing MongoDB Compass and mongosh, by running pip install MGKDB-fusion in the command line
+
+After running pip you will need to input database credentials using mgk_save_credentials. For testing, input localhost, 27017, mgk_fusion, <username>, <password>
+
 ## Setting up the environment
 A convenient method to access the database tools is using conda environments.
 You can find the instructions to build the conda environment in the wiki [here](https://github.com/Sapientai/MGKDB/wiki/Setting-up-the-environment).
 
 ## Test DB  locally
-Please refer to this [Wiki](https://github.com/Sapientai/MGKDB/wiki/Local-MGKDB) for step-by-step instructions on building MGKDB locally
+Please refer to this [Wiki](https://github.com/Sapientai/MGKDB/wiki/Local-MGKDB) for step-by-step instructions on building MGKDB locally 
 
 ## Test DB on NERSC
 
