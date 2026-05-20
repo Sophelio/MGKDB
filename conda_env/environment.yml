@@ -13,4 +13,4 @@ dependencies:
   - pymongo=4.8.0
   - openblas  # Explicitly include a BLAS library
   - pip:
-      - git+ssh://git@github.com/pyro-kinetics/pyrokinetics.git
+      - git+https://github.com/pyro-kinetics/pyrokinetics.git
