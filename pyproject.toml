@@ -21,7 +21,10 @@ classifiers = [
 dependencies = [
     'numpy>=1.24.3', 
     'h5py', 'pymongo',
-    'pyrokinetics>=0.8.0', 
+    'pyrokinetics @ git+https://github.com/pyro-kinetics/pyrokinetics.git',
+    'matplotlib>=3.9.2',
+    'pandas',
+    'scipy>=1.13.1',
 ]
 
 [project.urls]
