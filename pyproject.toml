@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "MGKDB"
+name = "MGKDB-fusion"
 version = "1.0.0"
 description = "Tools to acess MongoDB for nuclear fusion simulations"
 authors = [
@@ -21,7 +21,10 @@ classifiers = [
 dependencies = [
     'numpy>=1.24.3', 
     'h5py', 'pymongo',
-    'pyrokinetics>=0.8.0', 
+    'pyrokinetics>=0.7.0',
+    'matplotlib>=3.9.2',
+    'pandas',
+    'scipy>=1.13.1',
 ]
 
 [project.urls]
@@ -36,4 +39,3 @@ mgk_upload = "mgkdb.mgk_uploader:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
